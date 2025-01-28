@@ -17,32 +17,65 @@ The workflow is:
 const jwt = require("jsonwebtoken");
 
 exports.onExecutePostLogin = async (event, api) => {
-  const payload = {
-    "workspace_id": '<YOUR_WORKSPACE_ID>',
-    "name": "tinybird_jwt",
-    "scopes": [{
-        "type": "PIPES:READ",
-        "resource": "<YOUR_PIPE_NAME>"
-      }]
+  if (!event.secrets.TINYBIRD_ADMIN_TOKEN) {
+    console.log("Tinybird Admin Token is missing. Create a secret with name TINYBIRD_ADMIN_TOKEN.");
+    return;
   }
 
-  const options = {
-    expiresIn: "7d"
+  if (!event.configuration.TINYBIRD_WORKSPACE_ID) {
+    console.log(
+      "Tinybird Workspace ID is missing. Create a configuration variable with name TINYBIRD_WORKSPACE_ID."
+    );
+    return;
+  }
+
+  if (!event.configuration.TINYBIRD_PIPE_NAMES) {
+    console.log(
+      "Tinybird Pipe Names is missing. Create a configuration variable with name TINYBIRD_PIPE_NAMES."
+    );
+    return;
+  }
+
+  const scopes = event.configuration.TINYBIRD_PIPE_NAMES.split(",").map((pipeName) => ({
+    type: "PIPES:READ",
+    resource: pipeName,
+  }));
+
+  const payload = {
+    workspace_id: event.configuration.TINYBIRD_WORKSPACE_ID,
+    name: `tinybird_jwt_${event.user.id}`,
+    scopes,
   };
 
-  const secret = event.secrets.tinybird_admin_token
+  const options = {
+    expiresIn: "7d",
+  };
+
+  const secret = event.secrets.TINYBIRD_ADMIN_TOKEN;
   const token = jwt.sign(payload, secret, options);
-  api.user.setAppMetadata("tinybird_jwt", token);
+  api.user.setAppMetadata("tinybirdJWT", token);
 
   if (event.authorization) {
-    api.idToken.setCustomClaim("tinybird_jwt", token);
+    api.idToken.setCustomClaim("https://app.tinybird.co", token);
   }
-}
+
+  console.log(`Tinybird JWT token set for user`);
+};
 ```
-- REPLACE `<YOUR_WORKSPACE_ID>` with your workspace ID
-- REPLACE `<YOUR_PIPE_NAME>` with the name of the pipe you want the JWT token to have access to
-- Add the `tinybird_admin_token` secret from https://app.tinybird.co/tokens
+
+- Configure the action with the required secrets and configuration variables
 - Save the action
 - Modify the trigger to use the action
 
 ![Trigger](auth0-trigger.png)
+
+## How to get the JWT token after login
+
+After the user logs in, you can get the JWT token from the user object.
+
+```javascript
+const user = await auth0Client.getUser();
+const tinybirdJWT = user["https://app.tinybird.co"];
+```
+
+You can use this token to fetch data from Tinybird. See this [example](https://alrocar.github.io/auth0-tinybird-jwt/) for more information.
