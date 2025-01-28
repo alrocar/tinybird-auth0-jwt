@@ -1,5 +1,13 @@
 # Auth0 + Tinybird JWT
 
+Check https://alrocar.github.io/auth0-tinybird-jwt/ for a demo.
+
+The workflow is:
+
+1. Login to Auth0
+2. Get a JWT token from a Tinybird workspace with read permissions on a pipe as part of the post-login Auth0 workflow
+3. Use the JWT token to fetch data from Tinybird
+
 ## Create the action
 
 - Go to Auth0 > Actions > Triggers > post-login
@@ -36,3 +44,5 @@ exports.onExecutePostLogin = async (event, api) => {
 - Add the `tinybird_admin_token` secret from https://app.tinybird.co/tokens
 - Save the action
 - Modify the trigger to use the action
+
+![Trigger](auth0-trigger.png)
