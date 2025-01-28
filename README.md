@@ -1,16 +1,18 @@
 # Auth0 + Tinybird JWT
+Set up an Auth0 action to get a Tinybird JWT token as part of the post-login Auth0 trigger.
+
+## Demo
 
 Check https://alrocar.github.io/tinybird-auth0-jwt/ for a demo.
 
-The workflow is:
+## Prerequisites
 
-1. Login to Auth0
-2. Get a JWT token from a Tinybird workspace with read permissions on a pipe as part of the post-login Auth0 workflow
-3. Use the JWT token to fetch data from Tinybird
+1. An Auth0 account and tenant. [Sign up for free](https://auth0.com/signup).
+2. A Tinybird account and workspace. [Sign up for free](https://tinybird.co/signup).
 
-## Create the action
+## Add the Auth0 Action
 
-- Go to Auth0 > Actions > Triggers > post-login
+- Go to `Auth0` > `Actions` > `Triggers` > `post-login`
 - Add a new custom action:
 
 ```js
@@ -65,17 +67,25 @@ exports.onExecutePostLogin = async (event, api) => {
 
 - Configure the action with the required secrets and configuration variables
 - Save the action
-- Modify the trigger to use the action
+- Modify the `post-login`trigger to use the action
 
 ![Trigger](auth0-trigger.png)
 
-## How to get the JWT token after login
+## How to use the JWT token
 
-After the user logs in, you can get the JWT token from the user object.
+The JWT token will be set in the id token with name `https://app.tinybird.co` as part of the post-login Auth0 workflow. 
 
 ```javascript
 const user = await auth0Client.getUser();
 const tinybirdJWT = user["https://app.tinybird.co"];
-```
 
-You can use this token to fetch data from Tinybird. See this [example](https://alrocar.github.io/tinybird-auth0-jwt/) for more information.
+// Use the token to fetch data from Tinybird
+const response = await fetch("https://api.tinybird.co/v0/pipes/your_pipe.json", {
+  headers: {
+    Authorization: `Bearer ${tinybirdJWT}`
+  }
+});
+
+const data = await response.json();
+console.log(data);
+```
