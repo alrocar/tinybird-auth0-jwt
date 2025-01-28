@@ -1,6 +1,6 @@
 # Auth0 + Tinybird JWT
 
-Check https://alrocar.github.io/auth0-tinybird-jwt/ for a demo.
+Check https://alrocar.github.io/tinybird-auth0-jwt/ for a demo.
 
 The workflow is:
 
@@ -78,4 +78,4 @@ const user = await auth0Client.getUser();
 const tinybirdJWT = user["https://app.tinybird.co"];
 ```
 
-You can use this token to fetch data from Tinybird. See this [example](https://alrocar.github.io/auth0-tinybird-jwt/) for more information.
+You can use this token to fetch data from Tinybird. See this [example](https://alrocar.github.io/tinybird-auth0-jwt/) for more information.
