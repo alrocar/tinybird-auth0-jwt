@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth0 + Tinybird Login</title>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.1.2/auth0-spa-js.production.js"></script>
+</head>
+<body>
+    <div id="app">
+        <button id="login" style="display: none;">Log In</button>
+        <button id="logout" style="display: none;">Log Out</button>
+        <div id="profile" style="display: none;">
+            <h2>User Profile</h2>
+            <img id="picture" />
+            <p id="name"></p>
+            <p id="email"></p>
+            <h3>Tinybird Token:</h3>
+            <pre id="token"></pre>
+        </div>
+    </div>
+
+    <script>
+        const auth0Config = {
+            domain: 'dev-alrocar.auth0.com',
+            clientId: '26BKNmSeEhCv2W9v3gnBdSHcyd9Hn01v'
+        };
+
+        let auth0Client;
+
+        async function init() {
+            auth0Client = await auth0.createAuth0Client({
+                domain: auth0Config.domain,
+                clientId: auth0Config.clientId,
+                authorizationParams: {
+                    redirect_uri: window.location.origin
+                }
+            });
+
+            // Handle callback
+            if (window.location.search.includes("code=")) {
+                await auth0Client.handleRedirectCallback();
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            updateUI();
+        }
+
+        async function updateUI() {
+            const isAuthenticated = await auth0Client.isAuthenticated();
+            document.getElementById('login').style.display = isAuthenticated ? 'none' : 'block';
+            document.getElementById('logout').style.display = isAuthenticated ? 'block' : 'none';
+            document.getElementById('profile').style.display = isAuthenticated ? 'block' : 'none';
+
+            if (isAuthenticated) {
+                const user = await auth0Client.getUser();
+                document.getElementById('picture').src = user.picture;
+                document.getElementById('name').textContent = user.name;
+                document.getElementById('email').textContent = user.email;
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('login').addEventListener('click', () => {
+            auth0Client.loginWithRedirect();
+        });
+
+        document.getElementById('logout').addEventListener('click', () => {
+            auth0Client.logout({
+                returnTo: window.location.origin
+            });
+        });
+
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html> 
