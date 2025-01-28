@@ -1,0 +1,29 @@
+{
+  "secrets": [
+    {
+      "name": "TINYBIRD_ADMIN_TOKEN",
+      "label": "Tinybird Admin Token",
+      "description": "Tinybird admin token used to generate the JWT token."
+    }
+  ],
+  "configuration": [
+    {
+      "name": "TINYBIRD_WORKSPACE_ID",
+      "label": "Tinybird Workspace ID",
+      "description": "Tinybird workspace ID.",
+      "default_value": "<TINYBIRD_WORKSPACE_ID>"
+    },
+    {
+      "name": "TINYBIRD_PIPE_NAMES",
+      "label": "Tinybird Pipe Names",
+      "description": "Comma-separated list of Tinybird pipe names to give access to the JWT token.",
+      "default_value": "<PIPE_NAME_1>,<PIPE_NAME_2>"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "jsonwebtoken",
+      "version": "9.0.1"
+    }
+  ]
+}
